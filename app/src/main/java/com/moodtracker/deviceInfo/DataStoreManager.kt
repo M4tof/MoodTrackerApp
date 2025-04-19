@@ -1,0 +1,52 @@
+package com.moodtracker.deviceInfo
+
+import android.content.Context
+import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
+private const val DATASTORE_NAME = "user_prefs"
+private val Context.dataStore by preferencesDataStore(DATASTORE_NAME)
+
+object DataStoreManager {
+    private val MORNING_REMINDER_KEY = floatPreferencesKey("morning_reminder_time")
+    private val EVENING_REMINDER_KEY = floatPreferencesKey("evening_reminder_time")
+    private val CHEER_UP_TEXT_KEY = stringPreferencesKey("cheer_up_text")
+
+    suspend fun saveMorningReminder(context: Context, time: Float) {
+        context.dataStore.edit { prefs ->
+            prefs[MORNING_REMINDER_KEY] = time
+        }
+    }
+
+    suspend fun saveEveningReminder(context: Context, time: Float) {
+        context.dataStore.edit { prefs ->
+            prefs[EVENING_REMINDER_KEY] = time
+        }
+    }
+
+    suspend fun saveCheerUpText(context: Context, text: String) {
+        context.dataStore.edit { prefs ->
+            prefs[CHEER_UP_TEXT_KEY] = text
+        }
+    }
+
+    fun getMorningReminder(context: Context): Flow<Float> {
+        return context.dataStore.data.map { prefs ->
+            prefs[MORNING_REMINDER_KEY] ?: 8.30f
+        }
+    }
+
+    fun getEveningReminder(context: Context): Flow<Float> {
+        return context.dataStore.data.map { prefs ->
+            prefs[EVENING_REMINDER_KEY] ?: 8.30f
+        }
+    }
+
+    fun getCheerUpText(context: Context): Flow<String> {
+        return context.dataStore.data.map { prefs ->
+            prefs[CHEER_UP_TEXT_KEY] ?: "DON'T JUMP MF"
+        }
+    }
+}

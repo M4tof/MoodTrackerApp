@@ -13,11 +13,14 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun EntryScreen(
     modifier: Modifier = Modifier,
-    onNewReadingClick: () -> Unit = {}
+    onNewReadingClick: () -> Unit = {},
+    onStatisticsClick: () -> Unit = {},
+    onOptionsClick: () -> Unit = {},
+    onThemeToggleClick: () -> Unit = {},
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         Button(
-            onClick = { /* TODO */ },
+            onClick = onThemeToggleClick,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(16.dp)
@@ -49,16 +52,17 @@ fun EntryScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(onClick = { /* TODO */ }, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = onStatisticsClick, modifier = Modifier.fillMaxWidth()) {
                 Text("Statistics")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(onClick = { /* TODO */ }, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = onOptionsClick, modifier = Modifier.fillMaxWidth()) {
                 Text("Options")
             }
         }
     }
 }
+
 
