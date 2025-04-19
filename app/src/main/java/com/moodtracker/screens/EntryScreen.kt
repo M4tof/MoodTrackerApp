@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.moodtracker.deviceInfo.RunTimeInfo.greetingText
 
 @Composable
 fun EntryScreen(
@@ -40,7 +41,7 @@ fun EntryScreen(
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                text = "Smacznej Kawusi ; )",
+                text = greetingText,
                 fontSize = 12.sp,
             )
 

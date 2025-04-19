@@ -2,6 +2,8 @@ package com.moodtracker.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -20,6 +22,8 @@ fun SettingsScreen() {
     var morningTime by remember { mutableFloatStateOf(RunTimeInfo.morningReminderTime) }
     var eveningTime by remember { mutableFloatStateOf(RunTimeInfo.eveningReminderTime) }
     var cheerUpText by remember { mutableStateOf(TextFieldValue(RunTimeInfo.cheerUpText)) }
+    var timeBarrier by remember { mutableFloatStateOf(RunTimeInfo.timeBarrier) }
+    var greetingText by remember { mutableStateOf(TextFieldValue(RunTimeInfo.greetingText)) }
 
     // Create a coroutine scope for launching the coroutine when saving settings
     val coroutineScope = rememberCoroutineScope()
@@ -28,6 +32,7 @@ fun SettingsScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
@@ -66,6 +71,29 @@ fun SettingsScreen() {
             modifier = Modifier.fillMaxWidth()
         )
 
+        // Greeting Text
+        Text(text = "Greeting Text")
+        TextField(
+            value = greetingText,
+            onValueChange = { newText ->
+                greetingText = newText
+            },
+            label = { Text("Greeting Text") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        // Time Barrier
+        Text(text = "Evening time start")
+        TextField(
+            value = timeBarrier.toString(),
+            onValueChange = { newTime ->
+                timeBarrier = newTime.toFloatOrNull() ?: timeBarrier
+            },
+            label = { Text("Time") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+
         // Save Button
         Button(
             onClick = {
@@ -75,6 +103,8 @@ fun SettingsScreen() {
                     RunTimeInfo.updateMorningReminder(context, morningTime)
                     RunTimeInfo.updateEveningReminder(context, eveningTime)
                     RunTimeInfo.updateCheerUpText(context, cheerUpText.text)
+                    RunTimeInfo.updateGreetingText(context, greetingText.text)
+                    RunTimeInfo.updateTimeBarrier(context,timeBarrier)
 
                     // Show confirmation toast
                     Toast.makeText(context, "Settings saved!", Toast.LENGTH_SHORT).show()

@@ -13,10 +13,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.moodtracker.R
+import com.moodtracker.deviceInfo.RunTimeInfo.timeBarrier
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 
@@ -36,7 +41,16 @@ fun NewReadingScreen() {
     val month = c.get(Calendar.MONTH)
     val day = c.get(Calendar.DAY_OF_MONTH)
     val hour = c.get(Calendar.HOUR_OF_DAY)
-    val isEvening = hour >= 12
+    val isEvening = hour >= timeBarrier
+
+    val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            scrollState.scrollTo(scrollState.maxValue / 2)
+        }
+    }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -47,6 +61,7 @@ fun NewReadingScreen() {
             modifier = Modifier
                 .padding(24.dp)
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -66,17 +81,18 @@ fun NewReadingScreen() {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(text = "Choose from one of the faces...")
+            Text(text = "←  \uD83D\uDE42  →")
 
             Spacer(modifier = Modifier.height(12.dp))
 
             val buttonModifier = Modifier
-                .size(200.dp) // Increased size
+                .size(180.dp)
             val transparent = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
+                    .horizontalScroll(scrollState)
                     .padding(vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
