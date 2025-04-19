@@ -11,7 +11,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun EntryScreen(modifier: Modifier = Modifier) {
+fun EntryScreen(
+    modifier: Modifier = Modifier,
+    onNewReadingClick: () -> Unit = {}
+) {
     Box(modifier = modifier.fillMaxSize()) {
         Button(
             onClick = { /* TODO */ },
@@ -40,17 +43,22 @@ fun EntryScreen(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.padding(12.dp))
 
-            Button(onClick = { /* TODO */ }, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = onNewReadingClick, modifier = Modifier.fillMaxWidth()) {
                 Text("New reading")
             }
+
             Spacer(modifier = Modifier.height(16.dp))
+
             Button(onClick = { /* TODO */ }, modifier = Modifier.fillMaxWidth()) {
                 Text("Statistics")
             }
+
             Spacer(modifier = Modifier.height(16.dp))
+
             Button(onClick = { /* TODO */ }, modifier = Modifier.fillMaxWidth()) {
                 Text("Options")
             }
         }
     }
 }
+

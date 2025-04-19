@@ -9,5 +9,6 @@ data class MoodReadingEntry(
     val date: String,
     val morningMood: Int,
     val eveningMood: Int,
-    val isOver: Boolean
+    val isOver: Boolean,
+    val altIcon: Boolean
     )
