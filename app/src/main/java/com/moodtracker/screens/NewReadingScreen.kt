@@ -5,6 +5,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -23,6 +25,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -85,8 +89,7 @@ fun NewReadingScreen() {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            val buttonModifier = Modifier
-                .size(180.dp)
+            val buttonModifier = Modifier.size(64.dp)
             val transparent = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
 
             Row(
@@ -94,7 +97,7 @@ fun NewReadingScreen() {
                     .fillMaxWidth()
                     .horizontalScroll(scrollState)
                     .padding(vertical = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(
@@ -104,41 +107,73 @@ fun NewReadingScreen() {
                     Button(
                         onClick = { /* TODO */ },
                         modifier = buttonModifier,
-                        colors = transparent
+                        colors = transparent,
+                        shape = CircleShape,
+                        contentPadding = PaddingValues(0.dp)
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.angry),
-                            contentDescription = "Angry face"
+                            contentDescription = "Angry face",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
                     Button(
                         onClick = { /* TODO */ },
                         modifier = buttonModifier,
-                        colors = transparent
+                        colors = transparent,
+                        shape = CircleShape,
+                        contentPadding = PaddingValues(0.dp)
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.sad),
-                            contentDescription = "Sad face"
+                            contentDescription = "Sad face",
+                            contentScale = ContentScale.FillBounds,
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
                 }
 
-                Button(onClick = { /* TODO */ }, modifier = buttonModifier, colors = transparent) {
+                Button(
+                    onClick = { /* TODO */ },
+                    modifier = buttonModifier,
+                    colors = transparent,
+                    shape = CircleShape,
+                    contentPadding = PaddingValues(0.dp)
+                ) {
                     Image(
                         painter = painterResource(id = R.drawable.upset),
-                        contentDescription = "Upset face"
+                        contentDescription = "Upset face",
+                        contentScale = ContentScale.FillBounds,
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
-                Button(onClick = { /* TODO */ }, modifier = buttonModifier, colors = transparent) {
+                Button(
+                    onClick = { /* TODO */ },
+                    modifier = buttonModifier,
+                    colors = transparent,
+                    shape = CircleShape,
+                    contentPadding = PaddingValues(0.dp)
+                ) {
                     Image(
                         painter = painterResource(id = R.drawable.neutral),
-                        contentDescription = "Neutral face"
+                        contentDescription = "Neutral face",
+                        contentScale = ContentScale.FillBounds,
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
-                Button(onClick = { /* TODO */ }, modifier = buttonModifier, colors = transparent) {
+                Button(
+                    onClick = { /* TODO */ },
+                    modifier = buttonModifier,
+                    colors = transparent,
+                    shape = CircleShape,
+                    contentPadding = PaddingValues(0.dp)
+                ) {
                     Image(
                         painter = painterResource(id = R.drawable.pleased),
-                        contentDescription = "Pleased face"
+                        contentDescription = "Pleased face",
+                        contentScale = ContentScale.FillBounds,
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
 
@@ -149,21 +184,29 @@ fun NewReadingScreen() {
                     Button(
                         onClick = { /* TODO */ },
                         modifier = buttonModifier,
-                        colors = transparent
+                        colors = transparent,
+                        shape = CircleShape,
+                        contentPadding = PaddingValues(0.dp)
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.happy),
-                            contentDescription = "Happy face"
+                            contentDescription = "Happy face",
+                            contentScale = ContentScale.FillBounds,
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
                     Button(
                         onClick = { /* TODO */ },
                         modifier = buttonModifier,
-                        colors = transparent
+                        colors = transparent,
+                        shape = CircleShape,
+                        contentPadding = PaddingValues(0.dp)
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.excited),
-                            contentDescription = "Excited face"
+                            contentDescription = "Excited face",
+                            contentScale = ContentScale.FillBounds,
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
                 }
@@ -183,3 +226,7 @@ fun NewReadingScreen() {
 }
 
 // TODO click on button to add entry, link to form and make the form screen
+
+fun onClickHandler(faceId: Int){
+
+}

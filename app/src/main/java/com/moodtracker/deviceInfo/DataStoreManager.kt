@@ -49,7 +49,7 @@ object DataStoreManager {
     }
     fun getEveningReminder(context: Context): Flow<Float> {
         return context.dataStore.data.map { prefs ->
-            prefs[EVENING_REMINDER_KEY] ?: 8.30f
+            prefs[EVENING_REMINDER_KEY] ?: 21.30f
         }
     }
     fun getCheerUpText(context: Context): Flow<String> {
