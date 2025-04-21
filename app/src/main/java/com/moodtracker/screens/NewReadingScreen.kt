@@ -25,27 +25,26 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.moodtracker.R
+import com.moodtracker.database.MoodReadingEntry
 import com.moodtracker.deviceInfo.RunTimeInfo.timeBarrier
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
+val c = Calendar.getInstance()
+val year = c.get(Calendar.YEAR)
+val month = c.get(Calendar.MONTH)
+val day = c.get(Calendar.DAY_OF_MONTH)
+val hour = c.get(Calendar.HOUR_OF_DAY)
+val isEvening = hour >= timeBarrier
 
 @Composable
 fun NewReadingScreen() {
-
-    val c = Calendar.getInstance()
-    val year = c.get(Calendar.YEAR)
-    val month = c.get(Calendar.MONTH)
-    val day = c.get(Calendar.DAY_OF_MONTH)
-    val hour = c.get(Calendar.HOUR_OF_DAY)
-    val isEvening = hour >= timeBarrier
 
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -105,7 +104,7 @@ fun NewReadingScreen() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Button(
-                        onClick = { /* TODO */ },
+                        onClick = { onClickHandler(-3) },
                         modifier = buttonModifier,
                         colors = transparent,
                         shape = CircleShape,
@@ -119,7 +118,7 @@ fun NewReadingScreen() {
                         )
                     }
                     Button(
-                        onClick = { /* TODO */ },
+                        onClick = { onClickHandler(-2) },
                         modifier = buttonModifier,
                         colors = transparent,
                         shape = CircleShape,
@@ -135,7 +134,7 @@ fun NewReadingScreen() {
                 }
 
                 Button(
-                    onClick = { /* TODO */ },
+                    onClick = { onClickHandler(-1) },
                     modifier = buttonModifier,
                     colors = transparent,
                     shape = CircleShape,
@@ -149,7 +148,7 @@ fun NewReadingScreen() {
                     )
                 }
                 Button(
-                    onClick = { /* TODO */ },
+                    onClick = { onClickHandler(0) },
                     modifier = buttonModifier,
                     colors = transparent,
                     shape = CircleShape,
@@ -163,7 +162,7 @@ fun NewReadingScreen() {
                     )
                 }
                 Button(
-                    onClick = { /* TODO */ },
+                    onClick = { onClickHandler(1) },
                     modifier = buttonModifier,
                     colors = transparent,
                     shape = CircleShape,
@@ -182,7 +181,7 @@ fun NewReadingScreen() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Button(
-                        onClick = { /* TODO */ },
+                        onClick = { onClickHandler(2) },
                         modifier = buttonModifier,
                         colors = transparent,
                         shape = CircleShape,
@@ -196,7 +195,7 @@ fun NewReadingScreen() {
                         )
                     }
                     Button(
-                        onClick = { /* TODO */ },
+                        onClick = { onClickHandler(3) },
                         modifier = buttonModifier,
                         colors = transparent,
                         shape = CircleShape,
@@ -228,5 +227,18 @@ fun NewReadingScreen() {
 // TODO click on button to add entry, link to form and make the form screen
 
 fun onClickHandler(faceId: Int){
+    var date = "${day}.${month + 1}.${year}"
+    var isAlt: Boolean;
+    if (faceId == -3 || faceId == 3){
+        isAlt = true
+    }
+    else{
+        isAlt = false
+    }
+
+
+    val newData: MoodReadingEntry = MoodReadingEntry(0,date,faceId,null,false,isAlt)
+
+
 
 }

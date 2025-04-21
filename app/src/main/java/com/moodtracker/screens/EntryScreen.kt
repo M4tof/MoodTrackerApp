@@ -18,6 +18,7 @@ fun EntryScreen(
     onStatisticsClick: () -> Unit = {},
     onOptionsClick: () -> Unit = {},
     onThemeToggleClick: () -> Unit = {},
+    onSynchronize: () -> Unit = {}
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         Button(
@@ -55,6 +56,12 @@ fun EntryScreen(
 
             Button(onClick = onStatisticsClick, modifier = Modifier.fillMaxWidth()) {
                 Text("Statistics")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = onSynchronize, modifier = Modifier.fillMaxWidth()) {
+                Text("Synchronise with foreign device")
             }
 
             Spacer(modifier = Modifier.height(16.dp))

@@ -6,7 +6,7 @@ class MoodDataRepository(private val moodDataDao: MoodDataDao) {
 
     val readAllData: LiveData<List<MoodReadingEntry>> = moodDataDao.readAllData()
 
-    suspend fun addDrink(data: MoodReadingEntry) {
+    suspend fun addNewReading(data: MoodReadingEntry) {
         moodDataDao.addNewReading(data)
     }
 

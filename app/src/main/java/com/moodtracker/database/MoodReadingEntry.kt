@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 data class MoodReadingEntry(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val date: String,
-    val morningMood: Int,
-    val eveningMood: Int,
+    val morningMood: Int?,
+    val eveningMood: Int?,
     val isOver: Boolean,
     val altIcon: Boolean
     )
