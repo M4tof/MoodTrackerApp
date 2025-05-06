@@ -33,7 +33,7 @@ object DataStoreManager {
     }
     suspend fun saveEveningTimeBarrier(context: Context, time: Float) {
         context.dataStore.edit { prefs ->
-            prefs[EVENING_TIME_BARRIER] ?: time
+            prefs[EVENING_TIME_BARRIER] = time
         }
     }
     suspend fun saveGreetingText(context: Context, text: String) {

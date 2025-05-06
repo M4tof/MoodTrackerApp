@@ -22,4 +22,8 @@ class MoodDataRepository(private val moodDataDao: MoodDataDao) {
         return moodDataDao.deleteAll()
     }
 
+    suspend fun getGivenDayReading(date: String): MoodReadingEntry? {
+        return moodDataDao.getGivenDayReading(date)
+    }
+
 }

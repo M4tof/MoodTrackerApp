@@ -27,4 +27,8 @@ interface MoodDataDao {
     @Query("Delete from mood_data_table")
     suspend fun deleteAll()
 
+    @Query("SELECT * FROM mood_data_table WHERE date = :todayDate")
+    suspend fun getGivenDayReading(todayDate: String): MoodReadingEntry?
+
+//    TODO: isclosed on all previous dates
 }

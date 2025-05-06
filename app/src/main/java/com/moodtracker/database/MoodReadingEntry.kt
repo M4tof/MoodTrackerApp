@@ -10,5 +10,4 @@ data class MoodReadingEntry(
     val morningMood: Int?,
     val eveningMood: Int?,
     val isOver: Boolean,
-    val altIcon: Boolean
     )

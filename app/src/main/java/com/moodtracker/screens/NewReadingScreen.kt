@@ -1,5 +1,6 @@
 package com.moodtracker.screens
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -26,28 +27,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moodtracker.R
 import com.moodtracker.database.MoodReadingEntry
-import com.moodtracker.deviceInfo.RunTimeInfo.timeBarrier
+import com.moodtracker.deviceInfo.RunTimeInfo.day
+import com.moodtracker.deviceInfo.RunTimeInfo.isEvening
+import com.moodtracker.deviceInfo.RunTimeInfo.month
+import com.moodtracker.deviceInfo.RunTimeInfo.year
+import com.moodtracker.viewmodels.DatabaseViewmodel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
-val c = Calendar.getInstance()
-val year = c.get(Calendar.YEAR)
-val month = c.get(Calendar.MONTH)
-val day = c.get(Calendar.DAY_OF_MONTH)
-val hour = c.get(Calendar.HOUR_OF_DAY)
-val isEvening = hour >= timeBarrier
 
 @Composable
 fun NewReadingScreen() {
 
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
+    val viewModel: DatabaseViewmodel = viewModel()
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {
@@ -59,6 +61,9 @@ fun NewReadingScreen() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+        val context = LocalContext.current
+        val coroutineScope = rememberCoroutineScope()
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -104,7 +109,7 @@ fun NewReadingScreen() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Button(
-                        onClick = { onClickHandler(-3) },
+                        onClick = { onClickHandler(-3, viewModel, context,coroutineScope) },
                         modifier = buttonModifier,
                         colors = transparent,
                         shape = CircleShape,
@@ -118,7 +123,7 @@ fun NewReadingScreen() {
                         )
                     }
                     Button(
-                        onClick = { onClickHandler(-2) },
+                        onClick = { onClickHandler(-2, viewModel, context, coroutineScope) },
                         modifier = buttonModifier,
                         colors = transparent,
                         shape = CircleShape,
@@ -134,7 +139,7 @@ fun NewReadingScreen() {
                 }
 
                 Button(
-                    onClick = { onClickHandler(-1) },
+                    onClick = { onClickHandler(-1, viewModel, context, coroutineScope) },
                     modifier = buttonModifier,
                     colors = transparent,
                     shape = CircleShape,
@@ -148,7 +153,7 @@ fun NewReadingScreen() {
                     )
                 }
                 Button(
-                    onClick = { onClickHandler(0) },
+                    onClick = { onClickHandler(0, viewModel, context, coroutineScope) },
                     modifier = buttonModifier,
                     colors = transparent,
                     shape = CircleShape,
@@ -162,7 +167,7 @@ fun NewReadingScreen() {
                     )
                 }
                 Button(
-                    onClick = { onClickHandler(1) },
+                    onClick = { onClickHandler(1, viewModel, context, coroutineScope) },
                     modifier = buttonModifier,
                     colors = transparent,
                     shape = CircleShape,
@@ -181,7 +186,7 @@ fun NewReadingScreen() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Button(
-                        onClick = { onClickHandler(2) },
+                        onClick = { onClickHandler(3, viewModel, context, coroutineScope) },
                         modifier = buttonModifier,
                         colors = transparent,
                         shape = CircleShape,
@@ -195,7 +200,7 @@ fun NewReadingScreen() {
                         )
                     }
                     Button(
-                        onClick = { onClickHandler(3) },
+                        onClick = { onClickHandler(2, viewModel, context, coroutineScope) },
                         modifier = buttonModifier,
                         colors = transparent,
                         shape = CircleShape,
@@ -226,19 +231,51 @@ fun NewReadingScreen() {
 
 // TODO click on button to add entry, link to form and make the form screen
 
-fun onClickHandler(faceId: Int){
-    var date = "${day}.${month + 1}.${year}"
-    var isAlt: Boolean;
-    if (faceId == -3 || faceId == 3){
-        isAlt = true
+fun onClickHandler(
+    faceId: Int,
+    viewModel: DatabaseViewmodel,
+    context: Context,
+    coroutineScope: CoroutineScope
+) {
+    var date = String.format("%04d-%02d-%02d", year, month + 1, day)
+    var modify = false
+
+    coroutineScope.launch {
+        val existingEntry = viewModel.getGivenDayReading(date)
+        modify = existingEntry != null
+
+        when (Pair(modify, isEvening)) {
+            Pair(true, true) -> { // Modify evening reading, so copy what there already was and modify evening
+                existingEntry?.let { old ->
+                    val modifiedRead = old.copy(
+                        eveningMood = faceId,
+                    )
+                    viewModel.updateExistingReading(modifiedRead)
+                }
+            }
+
+            Pair(true, false) -> { // modyfing morning reading, copy and change
+                existingEntry?.let { old ->
+                    val modifiedRead = old.copy(
+                        morningMood = faceId,
+                    )
+                    viewModel.updateExistingReading(modifiedRead)
+                }
+
+            }
+
+            Pair(false, true) -> { //new reading for evening, there was no morning reading
+                val newReading = MoodReadingEntry(0,date,null,faceId,false)
+                viewModel.addNewReading(newReading)
+            }
+
+            Pair(false, false) -> { //new reading this day
+                val newReading = MoodReadingEntry(0,date,faceId,null,false)
+                viewModel.addNewReading(newReading)
+            }
+
+        }
+
     }
-    else{
-        isAlt = false
-    }
-
-
-    val newData: MoodReadingEntry = MoodReadingEntry(0,date,faceId,null,false,isAlt)
-
-
 
 }

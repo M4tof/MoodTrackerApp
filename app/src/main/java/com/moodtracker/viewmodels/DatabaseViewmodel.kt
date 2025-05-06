@@ -17,4 +17,17 @@ class DatabaseViewmodel(application: Application) : AndroidViewModel(application
         readAllData = repository.readAllData
     }
 
+    suspend fun getGivenDayReading(date: String): MoodReadingEntry? {
+        return repository.getGivenDayReading(date)
+    }
+
+    suspend fun addNewReading(data: MoodReadingEntry) {
+        repository.addNewReading(data)
+    }
+
+    suspend fun updateExistingReading(data: MoodReadingEntry) {
+        repository.updateExistingReading(data)
+    }
+
+
 }

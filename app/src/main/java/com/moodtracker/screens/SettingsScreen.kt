@@ -60,6 +60,17 @@ fun SettingsScreen() {
             modifier = Modifier.fillMaxWidth()
         )
 
+        // Time Barrier
+        Text(text = "Evening time start")
+        TextField(
+            value = timeBarrier.toString(),
+            onValueChange = { newTime ->
+                timeBarrier = newTime.toFloatOrNull() ?: timeBarrier
+            },
+            label = { Text("Time") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
         // Cheer Up Text
         Text(text = "Cheer-Up Text")
         TextField(
@@ -82,17 +93,6 @@ fun SettingsScreen() {
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Time Barrier
-        Text(text = "Evening time start")
-        TextField(
-            value = timeBarrier.toString(),
-            onValueChange = { newTime ->
-                timeBarrier = newTime.toFloatOrNull() ?: timeBarrier
-            },
-            label = { Text("Time") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
 
         // Save Button
         Button(
@@ -102,9 +102,9 @@ fun SettingsScreen() {
                     // Save settings and update RunTimeInfo
                     RunTimeInfo.updateMorningReminder(context, morningTime)
                     RunTimeInfo.updateEveningReminder(context, eveningTime)
+                    RunTimeInfo.updateTimeBarrier(context,timeBarrier)
                     RunTimeInfo.updateCheerUpText(context, cheerUpText.text)
                     RunTimeInfo.updateGreetingText(context, greetingText.text)
-                    RunTimeInfo.updateTimeBarrier(context,timeBarrier)
 
                     // Show confirmation toast
                     Toast.makeText(context, "Settings saved!", Toast.LENGTH_SHORT).show()
