@@ -23,6 +23,7 @@ object RunTimeInfo {
     val month = c.get(Calendar.MONTH)
     val day = c.get(Calendar.DAY_OF_MONTH)
     val hour = c.get(Calendar.HOUR_OF_DAY)
+    val minute = c.get(Calendar.MINUTE)
 
     var morningReminderTime by mutableFloatStateOf(8.30f)
         private set
@@ -53,31 +54,12 @@ object RunTimeInfo {
         }
         DataStoreManager.getEveningTimeBarrier(context).collectInBackground {
             timeBarrier = it
-            // Recalculate isEvening when the barrier is loaded
-            updateIsEvening() // First check when the barrier is loaded
+            isEvening = (hour + (minute/100.0f)) >= timeBarrier
         }
         DataStoreManager.getGreetingText(context).collectInBackground {
             greetingText = it
         }
 
-        // Start checking isEvening continuously
-        startUpdatingIsEvening()
-    }
-
-    private fun startUpdatingIsEvening() {
-        CoroutineScope(Dispatchers.IO).launch {
-            while (true) {
-                updateIsEvening()
-                delay(60000) // Wait for 1 minute before checking again
-//                TODO: na minutach nie działa
-            }
-        }
-    }
-
-    private fun updateIsEvening() {
-        val now = Calendar.getInstance()
-        val preciseTime = now.get(Calendar.HOUR_OF_DAY) + (now.get(Calendar.MINUTE) / 60f)
-        isEvening = preciseTime >= timeBarrier
     }
 
     suspend fun updateMorningReminder(context: Context, time: Float) {
@@ -95,7 +77,6 @@ object RunTimeInfo {
     suspend fun updateTimeBarrier(context: Context, time: Float){
         timeBarrier = time
         DataStoreManager.saveEveningTimeBarrier(context,time)
-        updateIsEvening() // Update immediately after barrier change
     }
     suspend fun updateGreetingText(context: Context, text: String) {
         greetingText = text

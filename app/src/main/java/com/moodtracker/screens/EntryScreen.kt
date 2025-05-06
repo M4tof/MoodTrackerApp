@@ -1,6 +1,8 @@
 package com.moodtracker.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -10,6 +12,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.moodtracker.deviceInfo.RunTimeInfo.greetingText
+import com.moodtracker.deviceInfo.RunTimeInfo.hour
+import com.moodtracker.deviceInfo.RunTimeInfo.minute
 
 @Composable
 fun EntryScreen(
@@ -33,9 +37,19 @@ fun EntryScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             verticalArrangement = Arrangement.Center
+
         ) {
+
+            val realTime = hour + (minute/100.0f)
+            val time = realTime.toString()
+            Text(
+                text = time,
+                fontSize = 16.sp,
+            )
+
             Text(
                 text = "Welcome to the MoodTracker",
                 fontSize = 32.sp,
