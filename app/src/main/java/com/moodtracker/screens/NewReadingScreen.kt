@@ -2,6 +2,7 @@ package com.moodtracker.screens
 
 import android.content.Context
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,10 +23,15 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -39,10 +45,10 @@ import com.moodtracker.deviceInfo.RunTimeInfo.day
 import com.moodtracker.deviceInfo.RunTimeInfo.isEvening
 import com.moodtracker.deviceInfo.RunTimeInfo.month
 import com.moodtracker.deviceInfo.RunTimeInfo.year
+import com.moodtracker.ui.theme.Pink40
 import com.moodtracker.viewmodels.DatabaseViewmodel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun NewReadingScreen() {
@@ -50,10 +56,22 @@ fun NewReadingScreen() {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val viewModel: DatabaseViewmodel = viewModel()
+    val context = LocalContext.current
+
+    var selectedMood by remember { mutableStateOf<Int?>(null) }
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             scrollState.scrollTo(scrollState.maxValue / 2)
+
+            val date = String.format("%04d-%02d-%02d", year, month + 1, day)
+            val existingEntry = viewModel.getGivenDayReading(date)
+
+            selectedMood = if (isEvening) {
+                existingEntry?.eveningMood
+            } else {
+                existingEntry?.morningMood
+            }
         }
     }
 
@@ -61,7 +79,7 @@ fun NewReadingScreen() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        val context = LocalContext.current
+
         val coroutineScope = rememberCoroutineScope()
 
         Column(
@@ -95,6 +113,50 @@ fun NewReadingScreen() {
 
             val buttonModifier = Modifier.size(64.dp)
             val transparent = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+            val highlighted = ButtonDefaults.buttonColors(containerColor = Pink40) // Light cyan
+
+            fun moodButton(
+                faceId: Int,
+                drawableId: Int,
+                description: String
+            ): @Composable () -> Unit = {
+                val isSelected = selectedMood == faceId
+
+                Box(
+                    modifier = Modifier
+                        .graphicsLayer {
+                            alpha = if (isSelected) 0.7f else 1.0f
+                            scaleX = if (isSelected) 1.1f else 1f
+                            scaleY = if (isSelected) 1.1f else 1f
+                        }
+                        .border(
+                            width = if (isSelected) 3.dp else 0.dp,
+                            color = if (isSelected) Color.White else Color.Transparent,
+                            shape = CircleShape
+                        )
+                ) {
+                    Button(
+                        onClick = {
+                            onClickHandler(faceId, viewModel, context, coroutineScope)
+                            selectedMood = faceId
+                        },
+                        modifier = buttonModifier,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isSelected) Color.White.copy(alpha = 0.15f) else Color.Transparent
+                        ),
+                        shape = CircleShape,
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = drawableId),
+                            contentDescription = description,
+                            contentScale = ContentScale.FillBounds,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+            }
+
 
             Row(
                 modifier = Modifier
@@ -108,111 +170,20 @@ fun NewReadingScreen() {
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Button(
-                        onClick = { onClickHandler(-3, viewModel, context,coroutineScope) },
-                        modifier = buttonModifier,
-                        colors = transparent,
-                        shape = CircleShape,
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.angry),
-                            contentDescription = "Angry face",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                    Button(
-                        onClick = { onClickHandler(-2, viewModel, context, coroutineScope) },
-                        modifier = buttonModifier,
-                        colors = transparent,
-                        shape = CircleShape,
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.sad),
-                            contentDescription = "Sad face",
-                            contentScale = ContentScale.FillBounds,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
+                    moodButton(-3, R.drawable.angry, "Angry face")()
+                    moodButton(-2, R.drawable.sad, "Sad face")()
                 }
 
-                Button(
-                    onClick = { onClickHandler(-1, viewModel, context, coroutineScope) },
-                    modifier = buttonModifier,
-                    colors = transparent,
-                    shape = CircleShape,
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.upset),
-                        contentDescription = "Upset face",
-                        contentScale = ContentScale.FillBounds,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                Button(
-                    onClick = { onClickHandler(0, viewModel, context, coroutineScope) },
-                    modifier = buttonModifier,
-                    colors = transparent,
-                    shape = CircleShape,
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.neutral),
-                        contentDescription = "Neutral face",
-                        contentScale = ContentScale.FillBounds,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                Button(
-                    onClick = { onClickHandler(1, viewModel, context, coroutineScope) },
-                    modifier = buttonModifier,
-                    colors = transparent,
-                    shape = CircleShape,
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.pleased),
-                        contentDescription = "Pleased face",
-                        contentScale = ContentScale.FillBounds,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
+                moodButton(-1, R.drawable.upset, "Upset face")()
+                moodButton(0, R.drawable.neutral, "Neutral face")()
+                moodButton(1, R.drawable.pleased, "Pleased face")()
 
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Button(
-                        onClick = { onClickHandler(3, viewModel, context, coroutineScope) },
-                        modifier = buttonModifier,
-                        colors = transparent,
-                        shape = CircleShape,
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.happy),
-                            contentDescription = "Happy face",
-                            contentScale = ContentScale.FillBounds,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                    Button(
-                        onClick = { onClickHandler(2, viewModel, context, coroutineScope) },
-                        modifier = buttonModifier,
-                        colors = transparent,
-                        shape = CircleShape,
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.excited),
-                            contentDescription = "Excited face",
-                            contentScale = ContentScale.FillBounds,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
+                    moodButton(3, R.drawable.happy, "Happy face")()
+                    moodButton(2, R.drawable.excited, "Excited face")()
                 }
             }
 

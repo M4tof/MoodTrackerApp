@@ -1,6 +1,4 @@
 TODO:
-    - po kliknięciu na twarz zaznacz ją jakoś dla czytelności
-
     - formularz do uczucia
 
     - wyświetlanie statystyk podstawowe
