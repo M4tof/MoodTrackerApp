@@ -1,0 +1,18 @@
+TODO:
+    - po kliknięciu na twarz zaznacz ją jakoś dla czytelności
+
+    - formularz do uczucia
+
+    - wyświetlanie statystyk podstawowe
+
+    - wyświetlanie tylko morning/ tylko evening/ w jakimś terminie
+
+    - powiadomienia że teraz powinnienneś
+
+    - połączenie się po bl albo wifi z inną apką
+
+    - inna apka xd
+
+    - logowanie na apce, tworzenie konta etc
+
+    - przesyłanie baz między nimi

@@ -25,15 +25,6 @@ fun EntryScreen(
     onSynchronize: () -> Unit = {}
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-        Button(
-            onClick = onThemeToggleClick,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(16.dp)
-                .height(36.dp)
-        ) {
-            Text(text = "Theme", fontSize = 12.sp)
-        }
         Column(
             modifier = Modifier
                 .fillMaxSize()

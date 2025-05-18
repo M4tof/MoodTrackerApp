@@ -64,4 +64,6 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     implementation(libs.androidx.datastore.preferences)
+
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }
