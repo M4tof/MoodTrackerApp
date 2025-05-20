@@ -26,4 +26,8 @@ class MoodDataRepository(private val moodDataDao: MoodDataDao) {
         return moodDataDao.getGivenDayReading(date)
     }
 
+    suspend fun closeOlderEntries(todayDate: String) {
+        moodDataDao.markAllOlderThanTodayAsOver(todayDate)
+    }
+
 }

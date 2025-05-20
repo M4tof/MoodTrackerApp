@@ -3,9 +3,9 @@ package com.moodtracker.database
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.Update
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface MoodDataDao {
@@ -30,5 +30,7 @@ interface MoodDataDao {
     @Query("SELECT * FROM mood_data_table WHERE date = :todayDate")
     suspend fun getGivenDayReading(todayDate: String): MoodReadingEntry?
 
-//    TODO: isclosed on all previous dates
+    @Query("UPDATE mood_data_table SET isOver = 1 WHERE date < :todayDate")
+    suspend fun markAllOlderThanTodayAsOver(todayDate: String)
+
 }

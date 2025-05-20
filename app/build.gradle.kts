@@ -66,4 +66,22 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
 
     implementation("androidx.core:core-splashscreen:1.0.1")
+
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    implementation("androidx.compose.runtime:runtime-livedata:1.4.0")
+
+    val vicoVersion = "1.16.1"
+    // For Jetpack Compose.
+    implementation("com.patrykandpatrick.vico:compose:$vicoVersion")
+
+    // For Material 2 theming in Jetpack Compose.
+    implementation("com.patrykandpatrick.vico:compose-m2:$vicoVersion")
+
+    // For Material 3 theming in Jetpack Compose.
+    implementation("com.patrykandpatrick.vico:compose-m3:$vicoVersion")
+
+    // For the view system.
+    implementation("com.patrykandpatrick.vico:views:$vicoVersion")
 }

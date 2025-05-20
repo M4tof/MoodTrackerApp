@@ -1,15 +1,23 @@
 package com.moodtracker
 
+import StatisticsScreen
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.os.Bundle
+import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -18,15 +26,15 @@ import com.moodtracker.screens.EntryScreen
 import com.moodtracker.screens.NewReadingScreen
 import com.moodtracker.screens.SettingsScreen
 import com.moodtracker.ui.theme.MoodTrackerTheme
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.AnimatorSet
-import android.view.animation.AccelerateDecelerateInterpolator
+import com.moodtracker.viewmodels.DatabaseViewmodel
+import kotlinx.coroutines.launch
 import kotlin.math.cos
 import kotlin.math.sin
 
-
 class MainActivity : ComponentActivity() {
+
+    private val viewModel: DatabaseViewmodel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         val splashScreen = installSplashScreen()
@@ -56,6 +64,15 @@ class MainActivity : ComponentActivity() {
             fadeIn.addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     defaultIcon.postDelayed({
+
+                        val today = "%04d-%02d-%02d".format(
+                            RunTimeInfo.year,
+                            RunTimeInfo.month + 1, // Calendar.MONTH is 0-based
+                            RunTimeInfo.day
+                        )
+                        lifecycleScope.launch {
+                            viewModel.closeOlderEntries(today)
+                        }
 
                         // Prepare "exploding" emotion icons
                         val emotionIcons = listOf(
@@ -143,13 +160,13 @@ class MainActivity : ComponentActivity() {
                         composable("entry") {
                             EntryScreen(
                                 onNewReadingClick = { navController.navigate("new_reading") },
-                                onStatisticsClick = { /* TODO */ },
+                                onStatisticsClick = { navController.navigate("statistics") },
                                 onOptionsClick = { navController.navigate("settings_screen") },
-                                onThemeToggleClick = { /* TODO */ }
                             )
                         }
                         composable("new_reading") { NewReadingScreen() }
                         composable("settings_screen") { SettingsScreen() }
+                        composable("statistics") {  StatisticsScreen(viewModel) }
                     }
                 }
             }
