@@ -13,12 +13,18 @@ class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
         val title = intent?.getStringExtra("title") ?: "Mood Tracker"
         val message = intent?.getStringExtra("message") ?: "Time to check your mood 😊"
+        val hour = intent?.getIntExtra("hour", 8) ?: 8
+        val minute = intent?.getIntExtra("minute", 30) ?: 30
+        val requestCode = intent?.getIntExtra("requestCode", 0) ?: 0
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        // Create channel for Android 8+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel("reminder_channel", "Reminders", NotificationManager.IMPORTANCE_HIGH).apply {
+            val channel = NotificationChannel(
+                "reminder_channel",
+                "Reminders",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
                 description = "MoodTracker Reminders"
             }
             notificationManager.createNotificationChannel(channel)
@@ -28,10 +34,13 @@ class NotificationReceiver : BroadcastReceiver() {
             .setSmallIcon(R.drawable.icon)
             .setContentTitle(title)
             .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
 
         notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+
+        // Reschedule the next alarm
+        AlarmScheduler.scheduleExactAlarm(context, hour, minute, requestCode, title, message)
     }
 }
+

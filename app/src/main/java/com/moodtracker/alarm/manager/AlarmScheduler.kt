@@ -1,5 +1,6 @@
 package com.moodtracker.alarm.manager
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -7,10 +8,21 @@ import android.content.Intent
 import java.util.Calendar
 
 object AlarmScheduler {
-    fun scheduleDailyReminder(context: Context, hour: Int, minute: Int, requestCode: Int, title: String, message: String) {
+    @SuppressLint("ScheduleExactAlarm")
+    fun scheduleExactAlarm(
+        context: Context,
+        hour: Int,
+        minute: Int,
+        requestCode: Int,
+        title: String,
+        message: String
+    ) {
         val intent = Intent(context, NotificationReceiver::class.java).apply {
             putExtra("title", title)
             putExtra("message", message)
+            putExtra("hour", hour)
+            putExtra("minute", minute)
+            putExtra("requestCode", requestCode)
         }
 
         val pendingIntent = PendingIntent.getBroadcast(
@@ -28,16 +40,16 @@ object AlarmScheduler {
             set(Calendar.MILLISECOND, 0)
 
             if (before(Calendar.getInstance())) {
-                add(Calendar.DAY_OF_MONTH, 1) // Schedule for the next day if time already passed
+                add(Calendar.DAY_OF_MONTH, 1)
             }
         }
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.setRepeating(
+        alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
             calendar.timeInMillis,
-            AlarmManager.INTERVAL_DAY,
             pendingIntent
         )
     }
 }
+

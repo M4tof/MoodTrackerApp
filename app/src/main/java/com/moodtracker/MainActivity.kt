@@ -97,35 +97,35 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         val splashScreen = installSplashScreen()
 
         splashScreen.setOnExitAnimationListener { splashViewProvider ->
             val splashIconView = splashViewProvider.iconView
-            val splashImageView = splashIconView as? android.widget.ImageView
-            val scaleType = splashImageView?.scaleType ?: android.widget.ImageView.ScaleType.CENTER
+            val splashImageView = splashIconView as? ImageView
+            val scaleType = splashImageView?.scaleType ?: ImageView.ScaleType.CENTER
 
-            val fadeOut = ObjectAnimator.ofFloat(splashIconView, android.view.View.ALPHA, 1f, 0f)
-            fadeOut.duration = 300
+            val fadeOut = ObjectAnimator.ofFloat(splashIconView, View.ALPHA, 1f, 0f).apply {
+                duration = 300
+            }
 
-            val rootView = splashViewProvider.view as android.view.ViewGroup
+            val rootView = splashViewProvider.view as ViewGroup
 
-            val defaultIcon = android.widget.ImageView(this).apply {
+            val defaultIcon = ImageView(this).apply {
                 setImageResource(R.drawable.icon)
                 layoutParams = splashIconView.layoutParams
                 setScaleType(scaleType)
                 alpha = 0f
             }
-
             rootView.addView(defaultIcon)
 
-            val fadeIn = ObjectAnimator.ofFloat(defaultIcon, android.view.View.ALPHA, 0f, 1f)
-            fadeIn.duration = 300
+            val fadeIn = ObjectAnimator.ofFloat(defaultIcon, View.ALPHA, 0f, 1f).apply {
+                duration = 300
+            }
 
             fadeIn.addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     defaultIcon.postDelayed({
-                        // RunTimeInfo values not yet guaranteed to be loaded here
+                        // Initialize RunTimeInfo synchronously before proceeding
                         lifecycleScope.launch {
                             RunTimeInfo.initializeBlocking(this@MainActivity)
 
@@ -136,11 +136,10 @@ class MainActivity : ComponentActivity() {
                             )
                             viewModel.closeOlderEntries(today)
 
-                            // Schedule notifications AFTER data is loaded
+                            // Schedule exact alarms
                             val morningHour = RunTimeInfo.morningReminderTime.toInt()
                             val morningMinute = ((RunTimeInfo.morningReminderTime % 1) * 100).toInt()
-
-                            AlarmScheduler.scheduleDailyReminder(
+                            AlarmScheduler.scheduleExactAlarm(
                                 this@MainActivity,
                                 morningHour,
                                 morningMinute,
@@ -151,8 +150,7 @@ class MainActivity : ComponentActivity() {
 
                             val eveningHour = RunTimeInfo.eveningReminderTime.toInt()
                             val eveningMinute = ((RunTimeInfo.eveningReminderTime % 1) * 100).toInt()
-
-                            AlarmScheduler.scheduleDailyReminder(
+                            AlarmScheduler.scheduleExactAlarm(
                                 this@MainActivity,
                                 eveningHour,
                                 eveningMinute,
@@ -161,14 +159,11 @@ class MainActivity : ComponentActivity() {
                                 "How was your day? Log your mood now!"
                             )
 
-                            // Then continue the animation:
-                            this@MainActivity.explodeIconsAndRemoveSplash(rootView, defaultIcon, splashViewProvider)
-
+                            explodeIconsAndRemoveSplash(rootView, defaultIcon, splashViewProvider)
                         }
                     }, 300)
                 }
             })
-
 
             fadeOut.addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
@@ -180,34 +175,14 @@ class MainActivity : ComponentActivity() {
         }
 
         super.onCreate(savedInstanceState)
+
+        // Do NOT reschedule alarms here to avoid race condition with uninitialized RunTimeInfo
         RunTimeInfo.initialize(this)
 
-        val morningHour = RunTimeInfo.morningReminderTime.toInt()
-        val morningMinute = ((RunTimeInfo.morningReminderTime % 1) * 100).toInt()
-        AlarmScheduler.scheduleDailyReminder(
-            this,
-            morningHour,
-            morningMinute,
-            1001,
-            "Good Morning 🌅",
-            "Time for your morning mood check!"
-        )
-
-        val eveningHour = RunTimeInfo.eveningReminderTime.toInt()
-        val eveningMinute = ((RunTimeInfo.eveningReminderTime % 1) * 100).toInt()
-        AlarmScheduler.scheduleDailyReminder(
-            this,
-            eveningHour,
-            eveningMinute,
-            1002,
-            "Evening Check 🌙",
-            "How was your day? Log your mood now!"
-        )
         enableEdgeToEdge()
         setContent {
             MoodTrackerTheme {
                 val navController = rememberNavController()
-
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavHost(
                         navController = navController,
@@ -223,12 +198,13 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("new_reading") { NewReadingScreen() }
                         composable("settings_screen") { SettingsScreen() }
-                        composable("statistics") {  StatisticsScreen(viewModel) }
+                        composable("statistics") { StatisticsScreen(viewModel) }
                     }
                 }
             }
         }
     }
 }
+
 
 
