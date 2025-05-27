@@ -7,8 +7,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -83,9 +83,24 @@ object RunTimeInfo {
         DataStoreManager.saveGreetingText(context, text)
     }
 
-    fun flipTheme() {
-        darkTheme = !darkTheme
+    suspend fun initializeBlocking(context: Context) {
+        val morning = DataStoreManager.getMorningReminder(context).first()
+        val evening = DataStoreManager.getEveningReminder(context).first()
+        val cheerUp = DataStoreManager.getCheerUpText(context).first()
+        val barrier = DataStoreManager.getEveningTimeBarrier(context).first()
+        val greeting = DataStoreManager.getGreetingText(context).first()
+
+        morningReminderTime = morning
+        eveningReminderTime = evening
+        cheerUpText = cheerUp
+        timeBarrier = barrier
+        greetingText = greeting
+
+        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        val minute = Calendar.getInstance().get(Calendar.MINUTE)
+        isEvening = (hour + (minute / 100f)) >= timeBarrier
     }
+
 }
 
 
