@@ -18,9 +18,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -59,6 +61,7 @@ fun NewReadingScreen() {
     val context = LocalContext.current
 
     var selectedMood by remember { mutableStateOf<Int?>(null) }
+    var showFormDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {
@@ -191,16 +194,29 @@ fun NewReadingScreen() {
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { /* TODO */ },
+                onClick = { showFormDialog = true },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("... or click here for a form to help you choose.")
             }
         }
+
+        if (showFormDialog) {
+            AlertDialog(
+                onDismissRequest = { showFormDialog = false },
+                confirmButton = {
+                    TextButton(onClick = { showFormDialog = false }) {
+                        Text("Close")
+                    }
+                },
+                title = { Text("Help Form") },
+                text = {
+                    TemporaryMoodForm() // You can replace this with the real one later
+                }
+            )
+        }
     }
 }
-
-// TODO click on button to add entry, link to form and make the form screen
 
 fun onClickHandler(
     faceId: Int,

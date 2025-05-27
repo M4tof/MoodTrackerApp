@@ -25,16 +25,19 @@ fun StatisticsScreen(viewModel: DatabaseViewmodel = androidx.lifecycle.viewmodel
     val finishedData: List<MoodReadingEntry> by viewModel.finishedReadings.observeAsState(emptyList())
 
     val context = LocalContext.current
-    val filteredData = finishedData.filter{ it.morningMood != null}
+    val filteredMorningData = finishedData.filter{ it.morningMood != null}
+    val filteredEveningData = finishedData.filter{ it.eveningMood != null}
 
-    val entries = filteredData.mapIndexed { index, moodReading ->
+//    for (entr in filteredMorningData) {
+//        println("Date: ${entr}")
+//    }
+
+    val entries = filteredMorningData.mapIndexed { index, moodReading ->
         entryOf(x = index.toFloat(), y = moodReading.morningMood!!.toFloat())
     }
 
-    val xLabels = filteredData.map { it.date }
+    val xLabels = filteredMorningData.map { it.date }
     val labelComponent = textComponent()
-
-    val entriesLINE = (0..9).map { i -> entryOf(i.toFloat(), i.toFloat()) }
 
     Column(modifier = Modifier.padding(16.dp)) {
         Text(text = "Morning Mood Over Time", modifier = Modifier.padding(bottom = 8.dp))
@@ -56,14 +59,5 @@ fun StatisticsScreen(viewModel: DatabaseViewmodel = androidx.lifecycle.viewmodel
         } else {
             Text(text = "No morning mood data available")
         }
-
-        Chart(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            chart = lineChart(context = context),
-            model = entryModelOf(entriesLINE),
-            startAxis = startAxis()
-        )
     }
 }

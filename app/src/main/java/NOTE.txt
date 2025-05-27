@@ -1,16 +1,7 @@
 TODO:
-    - formularz do uczucia
-
-    - wyświetlanie statystyk podstawowe
-
-    - wyświetlanie tylko morning/ tylko evening/ w jakimś terminie
-
+    - wyświetlanie tylko morning/ tylko evening/ w jakimś terminie/ jak na giełdzie
     - powiadomienia że teraz powinnienneś
-
-    - połączenie się po bl albo wifi z inną apką
-
+    - połączenie się po ble albo wifi z inną apką
     - inna apka xd
-
     - logowanie na apce, tworzenie konta etc
-
     - przesyłanie baz między nimi
