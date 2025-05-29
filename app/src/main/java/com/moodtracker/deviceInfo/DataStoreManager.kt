@@ -1,6 +1,7 @@
 package com.moodtracker.deviceInfo
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -17,6 +18,8 @@ object DataStoreManager {
     private val CHEER_UP_TEXT_KEY = stringPreferencesKey("cheer_up_text")
     private val EVENING_TIME_BARRIER = floatPreferencesKey("evening_time_barrier")
     private val GREETING_TEXT = stringPreferencesKey("greeting_text")
+    private val MORNING_REMINDER_ENABLED_KEY = booleanPreferencesKey("morning_reminder_enabled")
+    private val EVENING_REMINDER_ENABLED_KEY = booleanPreferencesKey("evening_reminder_enabled")
 
     suspend fun saveMorningReminder(context: Context, time: Float) {
         context.dataStore.edit { prefs ->
@@ -67,6 +70,30 @@ object DataStoreManager {
     fun getGreetingText(context: Context): Flow<String> {
         return context.dataStore.data.map { prefs ->
             prefs[GREETING_TEXT] ?: "Smacznej kawusi ☕"
+        }
+    }
+
+    suspend fun saveMorningReminderEnabled(context: Context, enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[MORNING_REMINDER_ENABLED_KEY] = enabled
+        }
+    }
+
+    suspend fun saveEveningReminderEnabled(context: Context, enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[EVENING_REMINDER_ENABLED_KEY] = enabled
+        }
+    }
+
+    fun getMorningReminderEnabled(context: Context): Flow<Boolean> {
+        return context.dataStore.data.map { prefs ->
+            prefs[MORNING_REMINDER_ENABLED_KEY] ?: false
+        }
+    }
+
+    fun getEveningReminderEnabled(context: Context): Flow<Boolean> {
+        return context.dataStore.data.map { prefs ->
+            prefs[EVENING_REMINDER_ENABLED_KEY] ?: false
         }
     }
 }

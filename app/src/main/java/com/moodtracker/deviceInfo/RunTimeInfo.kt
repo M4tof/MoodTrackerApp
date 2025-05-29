@@ -15,7 +15,9 @@ import java.util.Calendar
 object RunTimeInfo {
     var isTablet: Boolean = false
         private set
-    var darkTheme by mutableStateOf(false)
+    var isMorningReminderEnabled by mutableStateOf(true)
+        private set
+    var isEveningReminderEnabled by mutableStateOf(true)
         private set
 
     val c = Calendar.getInstance()
@@ -83,12 +85,27 @@ object RunTimeInfo {
         DataStoreManager.saveGreetingText(context, text)
     }
 
+    suspend fun updateMorningReminderEnabled(context: Context, enabled: Boolean) {
+        isMorningReminderEnabled = enabled
+        DataStoreManager.saveMorningReminderEnabled(context, enabled)
+    }
+
+    suspend fun updateEveningReminderEnabled(context: Context, enabled: Boolean) {
+        isEveningReminderEnabled = enabled
+        DataStoreManager.saveEveningReminderEnabled(context, enabled)
+    }
+
     suspend fun initializeBlocking(context: Context) {
         val morning = DataStoreManager.getMorningReminder(context).first()
         val evening = DataStoreManager.getEveningReminder(context).first()
         val cheerUp = DataStoreManager.getCheerUpText(context).first()
         val barrier = DataStoreManager.getEveningTimeBarrier(context).first()
         val greeting = DataStoreManager.getGreetingText(context).first()
+        val morningEnabled = DataStoreManager.getMorningReminderEnabled(context).first()
+        val eveningEnabled = DataStoreManager.getEveningReminderEnabled(context).first()
+
+        isMorningReminderEnabled = morningEnabled
+        isEveningReminderEnabled = eveningEnabled
 
         morningReminderTime = morning
         eveningReminderTime = evening

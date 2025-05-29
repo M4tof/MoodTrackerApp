@@ -5,6 +5,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import com.moodtracker.deviceInfo.RunTimeInfo
 import java.util.Calendar
 
 object AlarmScheduler {
@@ -17,6 +18,14 @@ object AlarmScheduler {
         title: String,
         message: String
     ) {
+        val enabled = when (requestCode) {
+            1001 -> RunTimeInfo.isMorningReminderEnabled
+            1002 -> RunTimeInfo.isEveningReminderEnabled
+            else -> false
+        }
+
+        if (!enabled || !PermissionsUtils.hasNotificationPermission(context)) return
+
         val intent = Intent(context, NotificationReceiver::class.java).apply {
             putExtra("title", title)
             putExtra("message", message)
@@ -38,10 +47,7 @@ object AlarmScheduler {
             set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
-
-            if (before(Calendar.getInstance())) {
-                add(Calendar.DAY_OF_MONTH, 1)
-            }
+            if (before(Calendar.getInstance())) add(Calendar.DAY_OF_MONTH, 1)
         }
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -50,6 +56,22 @@ object AlarmScheduler {
             calendar.timeInMillis,
             pendingIntent
         )
+    }
+
+    fun cancelAllReminders(context: Context) {
+        listOf(1001, 1002).forEach { requestCode ->
+            val intent = Intent(context, NotificationReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                requestCode,
+                intent,
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            )
+            pendingIntent?.let {
+                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                alarmManager.cancel(it)
+            }
+        }
     }
 }
 

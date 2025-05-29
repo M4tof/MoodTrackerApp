@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.splashscreen.SplashScreenViewProvider
 import androidx.lifecycle.lifecycleScope
@@ -26,6 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.moodtracker.alarm.manager.AlarmScheduler
+import com.moodtracker.alarm.manager.PermissionsUtils
 import com.moodtracker.deviceInfo.RunTimeInfo
 import com.moodtracker.screens.EntryScreen
 import com.moodtracker.screens.NewReadingScreen
@@ -128,36 +128,25 @@ class MainActivity : ComponentActivity() {
                         // Initialize RunTimeInfo synchronously before proceeding
                         lifecycleScope.launch {
                             RunTimeInfo.initializeBlocking(this@MainActivity)
-
-                            val today = "%04d-%02d-%02d".format(
-                                RunTimeInfo.year,
-                                RunTimeInfo.month + 1,
-                                RunTimeInfo.day
-                            )
+                            val today = "%04d-%02d-%02d".format(RunTimeInfo.year, RunTimeInfo.month + 1, RunTimeInfo.day)
                             viewModel.closeOlderEntries(today)
 
-                            // Schedule exact alarms
-                            val morningHour = RunTimeInfo.morningReminderTime.toInt()
-                            val morningMinute = ((RunTimeInfo.morningReminderTime % 1) * 100).toInt()
-                            AlarmScheduler.scheduleExactAlarm(
-                                this@MainActivity,
-                                morningHour,
-                                morningMinute,
-                                1001,
-                                "Good Morning 🌅",
-                                "Time for your morning mood check!"
-                            )
+                            // Schedule alarms only if permissions granted
+                            if (PermissionsUtils.hasNotificationPermission(this@MainActivity)) {
+                                val morningHour = RunTimeInfo.morningReminderTime.toInt()
+                                val morningMinute = ((RunTimeInfo.morningReminderTime % 1) * 100).toInt()
+                                AlarmScheduler.scheduleExactAlarm(
+                                    this@MainActivity, morningHour, morningMinute, 1001,
+                                    "Good Morning 🌅", "Time for your morning mood check!"
+                                )
 
-                            val eveningHour = RunTimeInfo.eveningReminderTime.toInt()
-                            val eveningMinute = ((RunTimeInfo.eveningReminderTime % 1) * 100).toInt()
-                            AlarmScheduler.scheduleExactAlarm(
-                                this@MainActivity,
-                                eveningHour,
-                                eveningMinute,
-                                1002,
-                                "Evening Check 🌙",
-                                "How was your day? Log your mood now!"
-                            )
+                                val eveningHour = RunTimeInfo.eveningReminderTime.toInt()
+                                val eveningMinute = ((RunTimeInfo.eveningReminderTime % 1) * 100).toInt()
+                                AlarmScheduler.scheduleExactAlarm(
+                                    this@MainActivity, eveningHour, eveningMinute, 1002,
+                                    "Evening Check 🌙", "How was your day? Log your mood now!"
+                                )
+                            }
 
                             explodeIconsAndRemoveSplash(rootView, defaultIcon, splashViewProvider)
                         }

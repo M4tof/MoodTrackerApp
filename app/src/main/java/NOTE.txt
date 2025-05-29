@@ -1,7 +1,10 @@
 TODO:
     - wyświetlanie tylko morning/ tylko evening/ w jakimś terminie/ jak na giełdzie
-    - powiadomienia że teraz powinnienneś
+    --
     - połączenie się po ble albo wifi z inną apką
     - inna apka xd
     - logowanie na apce, tworzenie konta etc
+    --
     - przesyłanie baz między nimi
+    --
+    - better option input

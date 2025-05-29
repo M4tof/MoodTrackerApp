@@ -7,28 +7,19 @@ import com.moodtracker.deviceInfo.RunTimeInfo
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
-        if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
-            // Retrieve stored reminder times and reschedule alarms
+        if (intent?.action == Intent.ACTION_BOOT_COMPLETED && PermissionsUtils.hasNotificationPermission(context)) {
             val morningHour = RunTimeInfo.morningReminderTime.toInt()
             val morningMinute = ((RunTimeInfo.morningReminderTime % 1) * 100).toInt()
             AlarmScheduler.scheduleExactAlarm(
-                context,
-                morningHour,
-                morningMinute,
-                1001,
-                "Good Morning 🌅",
-                "Time for your morning mood check!"
+                context, morningHour, morningMinute, 1001,
+                "Good Morning 🌅", "Time for your morning mood check!"
             )
 
             val eveningHour = RunTimeInfo.eveningReminderTime.toInt()
             val eveningMinute = ((RunTimeInfo.eveningReminderTime % 1) * 100).toInt()
             AlarmScheduler.scheduleExactAlarm(
-                context,
-                eveningHour,
-                eveningMinute,
-                1002,
-                "Evening Check 🌙",
-                "How was your day? Log your mood now!"
+                context, eveningHour, eveningMinute, 1002,
+                "Evening Check 🌙", "How was your day? Log your mood now!"
             )
         }
     }
