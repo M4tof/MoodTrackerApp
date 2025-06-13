@@ -1,10 +1,9 @@
 TODO:
     - wyświetlanie tylko morning/ tylko evening/ w jakimś terminie/ jak na giełdzie
     --
-    - połączenie się po ble albo wifi z inną apką
-    - inna apka xd
     - logowanie na apce, tworzenie konta etc
-    --
+    - show all databases
     - przesyłanie baz między nimi
+    - show database for X person
     --
     - better option input

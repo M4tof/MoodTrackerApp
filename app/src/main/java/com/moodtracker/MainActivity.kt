@@ -30,6 +30,7 @@ import com.moodtracker.deviceInfo.RunTimeInfo
 import com.moodtracker.screens.EntryScreen
 import com.moodtracker.screens.NewReadingScreen
 import com.moodtracker.screens.SettingsScreen
+import com.moodtracker.screens.SynchroScreen
 import com.moodtracker.ui.theme.MoodTrackerTheme
 import com.moodtracker.viewmodels.DatabaseViewmodel
 import kotlinx.coroutines.launch
@@ -183,11 +184,13 @@ class MainActivity : ComponentActivity() {
                                 onNewReadingClick = { navController.navigate("new_reading") },
                                 onStatisticsClick = { navController.navigate("statistics") },
                                 onOptionsClick = { navController.navigate("settings_screen") },
+                                onSynchronize = {navController.navigate("synchro_screen")}
                             )
                         }
                         composable("new_reading") { NewReadingScreen() }
                         composable("settings_screen") { SettingsScreen() }
                         composable("statistics") { StatisticsScreen(viewModel) }
+                        composable ("synchro_screen"){ SynchroScreen() }
                     }
                 }
             }
