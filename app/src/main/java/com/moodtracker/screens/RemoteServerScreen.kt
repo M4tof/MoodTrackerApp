@@ -1,5 +1,7 @@
 package com.moodtracker.screens
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,21 +27,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.moodtracker.database.MoodReadingEntry
 import com.moodtracker.viewmodels.DatabaseViewmodel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
+import io.ktor.content.TextContent
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.int
@@ -60,6 +64,7 @@ fun LoggedInScreen(
     var isSyncing by remember { mutableStateOf(false) }
     var syncProgress by remember { mutableStateOf(0) }
     var syncTotal by remember { mutableStateOf(0) }
+    val context = LocalContext.current
 
     val finishedEntries by viewModel.finishedReadings.observeAsState(emptyList())
 
@@ -94,7 +99,7 @@ fun LoggedInScreen(
                 syncProgress = 0
                 syncTotal = 0
 
-                val result = synchronizeMoodData(serverIp, userId, finishedEntries){ current, total ->
+                val result = synchronizeMoodData(context, serverIp, userId, finishedEntries) { current, total ->
                     syncProgress = current
                     syncTotal = total
                 }
@@ -227,6 +232,7 @@ suspend fun fetchLastSyncedDate(serverIp: String, userId: Int): Result<String?> 
 }
 
 suspend fun synchronizeMoodData(
+    context: Context,
     serverIp: String,
     userId: Int,
     finishedEntries: List<MoodReadingEntry>,
@@ -234,65 +240,94 @@ suspend fun synchronizeMoodData(
 ): Result<Unit> {
     val lastSyncedResult = fetchLastSyncedDate(serverIp, userId)
 
-    return when (lastSyncedResult) {
-        is Result.Failure -> Result.Failure(lastSyncedResult.message)
+    val toSend = when (lastSyncedResult) {
+        is Result.Failure -> return Result.Failure(lastSyncedResult.message)
         is Result.Success -> {
             val lastDate = lastSyncedResult.data
-            val toSend = if (lastDate == null) {
+            if (lastDate == null) {
                 finishedEntries
             } else {
                 finishedEntries.filter { it.date > lastDate }
             }
+        }
+    }
 
-            println("🔄 Sync Debug: ${toSend.size} entries will be sent to the server.")
+    if (toSend.isEmpty()) {
+        withContext(Dispatchers.Main) {
+            Toast.makeText(context, "📭 Nothing new to sync.", Toast.LENGTH_SHORT).show()
+        }
+        return Result.Success(Unit)
+    }
 
-            val client = HttpClient(CIO) {
-                install(ContentNegotiation) {
-                    json(Json { encodeDefaults = true })
-                }
+    val client = HttpClient(CIO)
+
+    toSend.forEachIndexed { index, entry ->
+        onProgress?.invoke(index + 1, toSend.size)
+
+        val jsonString = """
+        {
+            "date": "${entry.date}",
+            "morningMood": ${entry.morningMood ?: 0},
+            "eveningMood": ${entry.eveningMood ?: 0},
+            "isOver": ${entry.isOver}
+        }
+        """.trimIndent()
+
+        try {
+            val response = client.post("http://$serverIp:8080/mood/add/$userId") {
+                contentType(ContentType.Application.Json)
+                setBody(TextContent(jsonString, contentType = ContentType.Application.Json))
             }
 
-            toSend.forEachIndexed { index, entry ->
-                onProgress?.invoke(index + 1, toSend.size)
-
-                val dto = MoodUploadDTO(
-                    date = entry.date,
-                    morningMood = entry.morningMood!!,
-                    eveningMood = entry.eveningMood!!,
-                    isOver = entry.isOver
-                )
-
-                try {
-                    val response = client.post("http://$serverIp:8080/mood/add/$userId") {
-                        contentType(ContentType.Application.Json)
-                        setBody(dto)
-                    }
-
-                    if (response.status.value !in 200..299) {
-                        println("❌ Failed to upload entry for ${entry.date}: ${response.status}")
-                    } else {
-                        println("✅ Uploaded entry for ${entry.date}")
-                    }
-                } catch (e: Exception) {
-                    println("🚫 Exception while uploading ${entry.date}: ${e.message}")
+            if (response.status.value !in 200..299) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        "❌ Failed to upload ${entry.date}: ${response.status}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
-
-            // Final sync-complete call
-            try {
-                val finalResponse = client.post("http://$serverIp:8080/mood/sync-complete/$userId")
-                if (finalResponse.status.value in 200..299) {
-                    println("✅ Sync completed successfully.")
-                    return Result.Success(Unit)
-                } else {
-                    println("⚠️ Sync-complete failed: ${finalResponse.status}")
-                    return Result.Failure("Sync-complete failed: ${finalResponse.status}")
-                }
-            } catch (e: Exception) {
-                return Result.Failure("Exception during sync-complete: ${e.message}")
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context,
+                    "🚫 Exception uploading ${entry.date}: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
+
+    // Final sync-complete call
+    return try {
+        val finalResponse = client.post("http://$serverIp:8080/mood/sync-complete/$userId")
+
+        withContext(Dispatchers.Main) {
+            if (finalResponse.status.value in 200..299) {
+                Toast.makeText(context, "✅ Sync completed successfully.", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(
+                    context,
+                    "⚠️ Sync-complete failed: ${finalResponse.status}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+        if (finalResponse.status.value in 200..299) {
+            Result.Success(Unit)
+        } else {
+            Result.Failure("Sync-complete failed: ${finalResponse.status}")
+        }
+    } catch (e: Exception) {
+        withContext(Dispatchers.Main) {
+            Toast.makeText(
+                context,
+                "❗ Exception during sync-complete: ${e.message}",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+        Result.Failure("Exception during sync-complete: ${e.message}")
+    }
 }
-
-
