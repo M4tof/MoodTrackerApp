@@ -84,7 +84,7 @@ fun TemporaryMoodForm() {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(vertical = 4.dp)
             ) {
-                listOf("Yes" to 1, "Neutral" to 0, "No" to -1).forEach { (label, value) ->
+                listOf("Yes" to 1, "/" to 0, "No" to -1).forEach { (label, value) ->
                     val isSelected = scores[question] == value
                     Button(
                         onClick = { scores[question] = value },

@@ -21,13 +21,16 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.splashscreen.SplashScreenViewProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.moodtracker.alarm.manager.AlarmScheduler
 import com.moodtracker.alarm.manager.PermissionsUtils
 import com.moodtracker.deviceInfo.RunTimeInfo
 import com.moodtracker.screens.EntryScreen
+import com.moodtracker.screens.LoggedInScreen
 import com.moodtracker.screens.NewReadingScreen
 import com.moodtracker.screens.SettingsScreen
 import com.moodtracker.screens.SynchroScreen
@@ -184,19 +187,27 @@ class MainActivity : ComponentActivity() {
                                 onNewReadingClick = { navController.navigate("new_reading") },
                                 onStatisticsClick = { navController.navigate("statistics") },
                                 onOptionsClick = { navController.navigate("settings_screen") },
-                                onSynchronize = {navController.navigate("synchro_screen")}
+                                onSynchronize = { navController.navigate("synchro_screen") }
                             )
                         }
                         composable("new_reading") { NewReadingScreen() }
                         composable("settings_screen") { SettingsScreen() }
                         composable("statistics") { StatisticsScreen(viewModel) }
-                        composable ("synchro_screen"){ SynchroScreen() }
+                        composable("synchro_screen") { SynchroScreen(navController) }
+                        composable(
+                            route = "logged_in/{serverIp}/{userId}",
+                            arguments = listOf(
+                                navArgument("serverIp") { type = NavType.StringType },
+                                navArgument("userId") { type = NavType.IntType }
+                            )
+                        ) { backStackEntry ->
+                            val serverIp = backStackEntry.arguments?.getString("serverIp") ?: ""
+                            val userId = backStackEntry.arguments?.getInt("userId") ?: -1
+                            LoggedInScreen(serverIp, userId,viewModel)
+                        }
                     }
                 }
             }
         }
     }
 }
-
-
-

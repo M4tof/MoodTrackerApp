@@ -79,7 +79,6 @@ fun YAxisIcons() {
     }
 }
 
-
 @Composable
 fun StatisticsScreen(viewModel: DatabaseViewmodel = androidx.lifecycle.viewmodel.compose.viewModel()) {
 
